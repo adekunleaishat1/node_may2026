@@ -39,6 +39,7 @@ app.get("/user",(request, response)=>{
   })
 })
 
+
 app.post("/user/signup",(req, res)=>{
  console.log(req.body);
  const {username , email , password} = req.body
@@ -60,11 +61,3 @@ app.post("/user/signup",(req, res)=>{
  })
 
 
-// const alluser = ["lola", "shola", "remi", "temi"]
-
-// function update(newinfo) {
-//     alluser.push(newinfo)
-//     console.log(alluser);
-    
-// }
-// update("shade")
