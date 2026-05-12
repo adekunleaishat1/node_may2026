@@ -39,6 +39,16 @@ app.get("/user",(request, response)=>{
   })
 })
 
+app.get("/login",(req, res)=>{
+  res.render("login")
+})
+app.get("/dashboard",(req, res)=>{
+  console.log(req.query);
+  const {username} = req.query
+  res.render("dashboard",{username})
+})
+
+
 
 app.post("/user/signup",(req, res)=>{
  console.log(req.body);
@@ -49,8 +59,22 @@ app.post("/user/signup",(req, res)=>{
   }else{
     alluser.push(req.body)
     console.log(alluser);
-    res.redirect("/")
+    res.redirect("/login")
   }
+})
+
+app.post("/user/login",(req, res)=>{
+    console.log(req.body);
+    const {email, password } = req.body
+  const existuser =  alluser.find((user)=> user.email == email)
+  console.log(existuser);
+  if (existuser && existuser.password == password) {
+    const username = existuser.username
+    res.redirect(`/dashboard/?username=${username}`)
+  }else{
+    res.redirect("/login")
+  }
+    
 })
 
 
