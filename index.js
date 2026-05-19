@@ -1,13 +1,30 @@
+// Imports
 const express = require("express")
  const app =  express()
  require("ejs")
+const mongoose = require("mongoose")
 
+// middlewares
 app.set("view engine", "ejs")
 app.use(express.urlencoded())
 
 
-const alluser = []
+// funhctions
+const detail =[
+  {"name":"hammid", "class":"Nodejs", "food":"Amala"},
+        {"name":"samuel", "class":"Reactjs", "food":"Akpu"},
+        {"name":"oladeji", "class":"Nodejs", "food":"Semo"},
+        {"name":"Omotayo", "class":"Angular", "food":"Bread and Groundnut"},
+        {"name":"Esther", "class":"React js", "food":"Garri and cold water"},
+        {"name":"Goodness", "class":"Node js", "food":"Bread And Beans"},
+        {"name":"Kolade", "class":"Php", "food":"Pounded Yam"},
+        {"name":"Daniel", "class":"Flutter", "food":"Bread And Akara"},
+        {"name":"Lukman", "class":"Angular", "food":"JolllofRice"},
+        {"name":"Patric", "class":"Nodejs", "food":"Yam and Egg"},
+]
 
+const alluser = []
+let userDetails = []
 app.get("/",(request, response)=>{
     // response.send("Welcome your Node class!!!")
     console.log(__dirname);
@@ -48,7 +65,9 @@ app.get("/dashboard",(req, res)=>{
   res.render("dashboard",{username})
 })
 
-
+app.get("/todo",(req, res)=>{
+ res.render("to-do",{detail,gender:"female"})
+})
 
 app.post("/user/signup",(req, res)=>{
  console.log(req.body);
@@ -77,6 +96,13 @@ app.post("/user/login",(req, res)=>{
     
 })
 
+app.post("/add", (req,res) => {
+  const[beat, camp] = req.body
+  if (!beat ) {
+    
+  }
+
+})
 
  const port = 8009
  app.listen(port,()=>{
@@ -85,3 +111,20 @@ app.post("/user/login",(req, res)=>{
  })
 
 
+const Uri = "mongodb+srv://aishatadekunle877:aishat@cluster0.t92x8pf.mongodb.net/May2026?appName=Cluster0"
+
+
+
+const Connect = async () =>{
+ try {
+  const connection = await mongoose.connect(Uri)
+  if (connection) {
+     console.log("Database connected successfully");
+  }
+  
+ } catch (error) {
+  console.log(error);
+  
+ }
+}
+Connect()
