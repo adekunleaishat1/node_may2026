@@ -4,9 +4,25 @@ const express = require("express")
  require("ejs")
 const mongoose = require("mongoose")
 
+// CRUD CREATE READ UPDATE DELETE
+
+// Read
+// FIND
+// FINDBYID
+// FINDONE
+
 // middlewares
 app.set("view engine", "ejs")
 app.use(express.urlencoded())
+
+// 
+const userschema = mongoose.Schema({
+  username:{type:String},
+  email:{type:String},
+  password:{type:String}
+})
+
+const usermodel = mongoose.model("users_collection",userschema)
 
 
 // funhctions
@@ -69,30 +85,45 @@ app.get("/todo",(req, res)=>{
  res.render("to-do",{detail,gender:"female"})
 })
 
-app.post("/user/signup",(req, res)=>{
+app.post("/user/signup", async(req, res)=>{
  console.log(req.body);
- const {username , email , password} = req.body
-  console.log(username);
-  if (!username || !email || !password) {
-    res.send("All fields are mandatory")
-  }else{
-    alluser.push(req.body)
-    console.log(alluser);
-    res.redirect("/login")
+  try {
+  const newuser =  await usermodel.create(req.body)
+  console.log(newuser);
+  if (newuser) {
+   return res.redirect('/login')
+  }
+  return res.redirect('/home')
+  } catch (error) {
+    console.log(error);
+    res.redirect('/home')
   }
 })
 
-app.post("/user/login",(req, res)=>{
-    console.log(req.body);
+app.post("/user/login", async(req, res)=>{
+ try {
+  console.log(req.body);
     const {email, password } = req.body
-  const existuser =  alluser.find((user)=> user.email == email)
-  console.log(existuser);
-  if (existuser && existuser.password == password) {
-    const username = existuser.username
-    res.redirect(`/dashboard/?username=${username}`)
-  }else{
-    res.redirect("/login")
+  const existUser =  await usermodel.findOne({email})
+  console.log(existUser);
+  if (existUser && existUser.password == password) {
+    const username = existUser.username
+    return  res.redirect(`/dashboard/?username=${username}`)
   }
+  res.redirect("/login")
+  
+ } catch (error) {
+    console.log(error);
+    res.redirect("/login")
+ }
+  // const existuser =  alluser.find((user)=> user.email == email)
+  // console.log(existuser);
+  // if (existuser && existuser.password == password) {
+  //   const username = existuser.username
+  //   res.redirect(`/dashboard/?username=${username}`)
+  // }else{
+  //   res.redirect("/login")
+  // }
     
 })
 
