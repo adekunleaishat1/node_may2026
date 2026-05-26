@@ -8,16 +8,15 @@
 <body>
     <div>
         <h1>Todo-list</h1>
-        <form action="/add" method="post">
-            <input name="beat" type="text" placeholder="name">
-            <input name="camp" type="text" placeholder="surname">
+        <form action="/addtodo" method="post">
+            <input name="title" type="text" placeholder="Title">
+            <input name="description" type="text" placeholder="Description">
             <button type="submit">Add</button>
         </form>
     </div>
-      <% detail.forEach(element => { %>
-         <p><%= element.class %></p>
-         <p><%= element.name %></p>
-         <p><%= element.food %></p>
+      <% alltodo.forEach(element => { %>
+         <p><%= element.title %></p>
+         <p><%= element.description %></p>
       <% }) %>
 </body>
 </html>

@@ -17,12 +17,20 @@ app.use(express.urlencoded())
 
 // 
 const userschema = mongoose.Schema({
-  username:{type:String},
-  email:{type:String},
-  password:{type:String}
+  username:{type:String, required:true,trim:true},
+  email:{type:String, unique:true,trim:true, required:true},
+  password:{type:String,trim:true, required:true}
 })
 
 const usermodel = mongoose.model("users_collection",userschema)
+
+const todoschema = mongoose.Schema({
+  title:{type:String,required:true,trim:true },
+  description:{type:String, required:true, trim:true},
+  completed:{type:Boolean, default:false}
+},{timestamps:true})
+
+const todomodel = mongoose.model("todos", todoschema)
 
 
 // funhctions
@@ -81,13 +89,28 @@ app.get("/dashboard",(req, res)=>{
   res.render("dashboard",{username})
 })
 
-app.get("/todo",(req, res)=>{
- res.render("to-do",{detail,gender:"female"})
+app.get("/todo", async(req, res)=>{
+ try {
+  const alltodo = await todomodel.find()
+ res.render("to-do",{alltodo,gender:"female"})
+ } catch (error) {
+  console.log(error);
+  
+ }
 })
 
 app.post("/user/signup", async(req, res)=>{
  console.log(req.body);
   try {
+    const {email , username , password} = req.body
+    if (!email || !username || !password) {
+      return res.send("All fields are mandatory.")
+    }
+   const existUser = await usermodel.findOne({email})
+   console.log(existUser);
+   if (existUser) {
+    return res.send("User already exist.")
+   }
   const newuser =  await usermodel.create(req.body)
   console.log(newuser);
   if (newuser) {
@@ -99,6 +122,7 @@ app.post("/user/signup", async(req, res)=>{
     res.redirect('/home')
   }
 })
+
 
 app.post("/user/login", async(req, res)=>{
  try {
@@ -127,12 +151,21 @@ app.post("/user/login", async(req, res)=>{
     
 })
 
-app.post("/add", (req,res) => {
-  const[beat, camp] = req.body
-  if (!beat ) {
-    
-  }
+app.post("/addtodo", async(req,res) => {
+  try {
+    const newTodo =   await todomodel.create(req.body)
+    console.log(newTodo);
+    if (newTodo) {
+      return res.redirect("/todo")
+    }
 
+  } catch (error) {
+    console.log(error.message);
+    if (error.message.includes("todos validation failed")) {
+      return res.send("all fields are mandatory")
+    }
+     return res.send(error.message)
+  }
 })
 
  const port = 8009
