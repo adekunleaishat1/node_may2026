@@ -13,10 +13,17 @@
             <input name="description" type="text" placeholder="Description">
             <button type="submit">Add</button>
         </form>
+        
     </div>
       <% alltodo.forEach(element => { %>
          <p><%= element.title %></p>
          <p><%= element.description %></p>
+         <form action="/delete/<%= element._id %>" method="post">
+            <button type="submit">Delete</button>
+        </form>
+        <form action="/edittodo" method="get">
+            <button type="submit">Edit</button>
+        </form>
       <% }) %>
 </body>
 </html>

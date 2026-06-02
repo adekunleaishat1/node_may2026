@@ -150,6 +150,23 @@ app.post("/user/login", async(req, res)=>{
   // }
     
 })
+app.post("/delete/:id", async (req, res) => {
+   try {
+    console.log(req.params);
+    const {id} = req.params
+   const deletedTodo =  await todomodel.findByIdAndDelete(id)
+    if (deletedTodo) {
+      res.redirect("/todo")
+    }
+   } catch (error) {
+    console.log(error);
+    res.redirect("/todo")
+    
+   }
+})
+app.get("/edittodo", (req, res)=>{
+      res.render("edit")
+})
 
 app.post("/addtodo", async(req,res) => {
   try {
