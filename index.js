@@ -3,6 +3,7 @@ const express = require("express")
  const app =  express()
  require("ejs")
 const mongoose = require("mongoose")
+require("dotenv").config()
 
 // CRUD CREATE READ UPDATE DELETE
 
@@ -164,8 +165,33 @@ app.post("/delete/:id", async (req, res) => {
     
    }
 })
-app.get("/edittodo", (req, res)=>{
-      res.render("edit")
+app.get("/edittodo/:id", async(req, res)=>{
+   try {
+    console.log(req.params);
+   const {id} = req.params
+  const onetodo = await todomodel.findById(id)
+  console.log(onetodo);
+      res.render("edit",{onetodo})
+   } catch (error) {
+    console.log(error);
+    
+   }
+})
+
+app.post("/todocompleted/:id" , async (req, res)=> {
+  try {
+    const {id} = req.params
+  const completedTodo = await todomodel.findById(id)
+  console.log(completedTodo);
+  
+  const updatedTodo = await todomodel.findByIdAndUpdate(id, 
+    {completed: !completedTodo.completed}, {new: true})
+  
+  return res.redirect('/todo')
+  } catch (error) {
+    console.log(error);
+    
+  }
 })
 
 app.post("/addtodo", async(req,res) => {
@@ -185,6 +211,26 @@ app.post("/addtodo", async(req,res) => {
   }
 })
 
+app.post("/updatetodo/:id", async(req , res)=>{
+  try {
+    console.log(req.params);
+    console.log(req.body);
+    const {id} = req.params
+    const updatedTodo = await todomodel.findByIdAndUpdate(id,{
+      title:req.body.title,
+      description:req.body.description
+    },
+    {new:true}
+  )
+  console.log(updatedTodo);
+  res.redirect("/todo")
+    
+  } catch (error) {
+    console.log(error);
+    
+  }
+})
+
  const port = 8009
  app.listen(port,()=>{
   console.log(`app started at port ${port}`);
@@ -192,20 +238,16 @@ app.post("/addtodo", async(req,res) => {
  })
 
 
-const Uri = "mongodb+srv://aishatadekunle877:aishat@cluster0.t92x8pf.mongodb.net/May2026?appName=Cluster0"
-
 
 
 const Connect = async () =>{
  try {
-  const connection = await mongoose.connect(Uri)
+  const connection = await mongoose.connect(process.env.MONGOURI)
   if (connection) {
      console.log("Database connected successfully");
   }
-  
  } catch (error) {
   console.log(error);
-  
  }
 }
 Connect()
