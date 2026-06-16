@@ -1,5 +1,8 @@
 const usermodel = require("../model/user.model")
 const bcrypt = require("bcryptjs")
+ const sendemailVerification =  require("../utils/verificationMail")
+ const {generateOtp} = require("../utils/generateOtp")
+ const otpmodel = require("../model/otp.model")
 
 const UserSignup = async  (req, res) =>{
     try {
@@ -20,7 +23,13 @@ const UserSignup = async  (req, res) =>{
     if (!newuser) {
       return res.status(407).json({message:"Unable to register user", status:false}) 
     }
-      return res.status(200).json({message:"User register successfully", status:true})  
+       const verificationCode = await generateOtp()
+          await otpmodel.create({otp:verificationCode,email:email})
+      const deliveredmail   = await  sendemailVerification(email, username, verificationCode)
+
+      if ( deliveredmail ) {
+        return res.status(200).json({message:"User register successfully", status:true})
+      }  
     } catch (error) {
         console.log(error.code);
         // if (error.code == 11000) {
