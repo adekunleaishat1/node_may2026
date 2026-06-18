@@ -58,12 +58,40 @@ const UserLogin = async (req, res) =>{
      if (existuser) {
       const comfirmPassword =  await bcrypt.compare(password, existuser.password)
       if (comfirmPassword) {
-      return res.status(200).json({message:"login successfully", status:true})  
-        
+
+        if (!existuser.verified) {
+          return res.status(400).json({message:"please verify your email", status:false})  
+        }
+        return res.status(200).json({message:"login successfully", status:true})  
       }
       return res.status(407).json({message:"Invalid email or password", status:false})  
      }
-    return res.status(407).json({message:"Invalid email or password", status:false})  
+     return res.status(407).json({message:"Invalid email or password", status:false})  
+    } catch (error) {
+
+        console.log(error);
+        res.status(500).json({message:error.message, status:false})
+        
+    }
+}
+
+const verifyOtp = async (req,res) =>{
+    try {
+         const {verificationOtp} = req.body
+         if (!verificationOtp) {
+           return res.status(400).json({message:"Invalid otp", status:false})
+         }
+
+      const otp =  await otpmodel.findOne({otp:verificationOtp})
+      console.log(otp);
+      if (!otp) {
+        return res.status(405).json({message:"otp has expired ", status:false})
+      }
+      const verifiedUser = await usermodel.findOneAndUpdate({email:otp.email},{verified:true},{new:true})
+      console.log(verifiedUser);
+      if (verifiedUser) {
+        return res.status(200).json({message:"Email verified", status:true})  
+      }
     } catch (error) {
         console.log(error);
         res.status(500).json({message:error.message, status:false})
@@ -71,4 +99,5 @@ const UserLogin = async (req, res) =>{
     }
 }
 
-module.exports ={ UserSignup, UserLogin}
+
+module.exports ={ UserSignup, UserLogin, verifyOtp}
