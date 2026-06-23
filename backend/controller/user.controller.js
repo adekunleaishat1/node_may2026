@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs")
  const sendemailVerification =  require("../utils/verificationMail")
  const {generateOtp} = require("../utils/generateOtp")
  const otpmodel = require("../model/otp.model")
+ const jwt = require("jsonwebtoken")
 
 const UserSignup = async  (req, res) =>{
     try {
@@ -62,7 +63,9 @@ const UserLogin = async (req, res) =>{
         if (!existuser.verified) {
           return res.status(400).json({message:"please verify your email", status:false})  
         }
-        return res.status(200).json({message:"login successfully", status:true})  
+         const token =  await jwt.sign({email},process.env.SECRETKEY,{expiresIn:300})
+
+        return res.status(200).json({message:"login successfully",token, status:true})  
       }
       return res.status(407).json({message:"Invalid email or password", status:false})  
      }
@@ -99,5 +102,24 @@ const verifyOtp = async (req,res) =>{
     }
 }
 
+const verifydashbaord = async(req , res) =>{
+  try {
+    const token = req.headers.authorization.split(" ")[1]
+   if (!token) {
+    return res.status(400).json({message:"invalid token", status:false})
+   }
+  const verifiedToken =  await jwt.verify(token, process.env.SECRETKEY)
+  console.log(verifiedToken);
+  if (verifiedToken) {
+    const currentuser =  await usermodel.findOne({email:verifiedToken.email}).select(" _id email username")
+    console.log(currentuser);
+    return res.status(200).json({message:"token verified", currentuser, status:true})
+  }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({message:error.message, status:false})
+     
+  }
+}
 
-module.exports ={ UserSignup, UserLogin, verifyOtp}
+module.exports ={ UserSignup, UserLogin, verifyOtp,verifydashbaord}
