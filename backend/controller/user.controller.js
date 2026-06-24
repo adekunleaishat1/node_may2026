@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs")
  const {generateOtp} = require("../utils/generateOtp")
  const otpmodel = require("../model/otp.model")
  const jwt = require("jsonwebtoken")
+ const cloudinary = require("../utils/cloudinary")
 
 const UserSignup = async  (req, res) =>{
     try {
@@ -122,4 +123,38 @@ const verifydashbaord = async(req , res) =>{
   }
 }
 
-module.exports ={ UserSignup, UserLogin, verifyOtp,verifydashbaord}
+
+const UploadProfile = async(req ,res) =>{
+  try {
+    const user = req.user
+    const {image }= req.body
+   if (!image) {
+    return res.status(400).json({message:"image cannot be empty", status:false})
+   }
+   const existuser = await usermodel.findOne({email:user})
+   if (existuser.profilepicture.url && existuser.profilepicture.public_id) {
+      await cloudinary.uploader.destroy(existuser.profilepicture.public_id)
+   }
+
+    const uploadedimage =   await cloudinary.uploader.upload(image)
+    console.log(uploadedimage);
+    if (uploadedimage) {
+    const updateduser =  await usermodel.findOneAndUpdate({email:user},
+        {profilepicture:{
+          url:uploadedimage.secure_url,
+          public_id:uploadedimage.public_id
+        }},
+        {new:true}
+      )
+
+      console.log(updateduser);
+      return res.status(200).json({message:"profile picture updated successfully", status:true})
+    }
+  } catch (error) {
+    console.log(error);
+    
+  }
+}
+
+
+module.exports ={ UserSignup, UserLogin, verifyOtp,verifydashbaord, UploadProfile}
