@@ -1,25 +1,25 @@
-import React,{useState} from 'react'
-import axios from "axios"
-import { useNavigate } from 'react-router-dom'
-import {toast} from "react-toastify"
+import React ,{useState} from 'react'
+import axios from 'axios'
+import { useNavigate  } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
-const Signup = () => {
+const Login = () => {
     const navigate = useNavigate()
      const [loading, setloading] = useState(false)
     const [userdetails,setUserdetails] = useState({
-        username:"",
         email:"",
         password:""
     })
-    const Signupuser = () =>{
+    const LoginUser = () =>{
         if (userdetails) {
             setloading(true)
-            axios.post("http://localhost:8009/user/signup",userdetails)
+            axios.post("http://localhost:8009/user/login",userdetails)
             .then((res)=>{
                 console.log(res);
                 if (res.status == 200) {
-                    toast.success("Signup successful")
-                    navigate("/verify")
+                    localStorage.setItem("token",res.data.token)
+                    toast.success("login successful")
+                    navigate("/dashbaord")
                 }
             }).catch((err)=>{
                 const errormessage = err?.response?.data?.message
@@ -33,15 +33,14 @@ const Signup = () => {
     }
   return (
     <div>
-        <h1>Signup Page</h1>
+        <h1>Login Page</h1>
         <div>
-            <input onChange={(e)=> setUserdetails({...userdetails, username:e.target.value})}  type="text" placeholder="Username" />
             <input onChange={(e)=> setUserdetails({...userdetails, email:e.target.value})}  type="email" placeholder="Email" />
             <input onChange={(e)=> setUserdetails({...userdetails, password:e.target.value})}  type="password" placeholder="Password" />
-            <button disabled={loading} onClick={Signupuser}>{loading ? "Loading..." : "Submit"}</button>
+            <button disabled={loading} onClick={LoginUser}>{loading ? "Loading..." : "Login"}</button>
         </div>
     </div>
   )
 }
 
-export default Signup
+export default Login

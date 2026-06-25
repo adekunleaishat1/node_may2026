@@ -5,7 +5,7 @@ const otpSchema =  mongoose.Schema({
     email:{type:String,required:true},
     expireAt:{
         type:Date,
-        default: () => new Date(Date.now() + 30 * 60 * 1000),
+        default: () => new Date(Date.now() + 5 * 60 * 1000),
         expires: 0
     }
 })

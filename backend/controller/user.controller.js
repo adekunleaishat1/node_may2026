@@ -49,6 +49,8 @@ const UserSignup = async  (req, res) =>{
 
 const UserLogin = async (req, res) =>{
     try {
+      console.log(req.body);
+      
         const {email, password} = req.body
         if (!email || !password) {
           return res.status(400).json({message:"All fields are mandatory", status:false}) 
@@ -58,8 +60,10 @@ const UserLogin = async (req, res) =>{
      console.log(existuser);
      
      if (existuser) {
-      const comfirmPassword =  await bcrypt.compare(password, existuser.password)
-      if (comfirmPassword) {
+      const confirmPassword =  await bcrypt.compare(password, existuser.password)
+      console.log(confirmPassword);
+      
+      if (confirmPassword) {
 
         if (!existuser.verified) {
           return res.status(400).json({message:"please verify your email", status:false})  
@@ -68,7 +72,7 @@ const UserLogin = async (req, res) =>{
 
         return res.status(200).json({message:"login successfully",token, status:true})  
       }
-      return res.status(407).json({message:"Invalid email or password", status:false})  
+      return res.status(400).json({message:"Invalid email or password", status:false})  
      }
      return res.status(407).json({message:"Invalid email or password", status:false})  
     } catch (error) {
@@ -82,6 +86,8 @@ const UserLogin = async (req, res) =>{
 const verifyOtp = async (req,res) =>{
     try {
          const {verificationOtp} = req.body
+         console.log(verificationOtp);
+         
          if (!verificationOtp) {
            return res.status(400).json({message:"Invalid otp", status:false})
          }
